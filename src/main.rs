@@ -45,7 +45,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let input = matches.value_of("input").unwrap_or("input");
     let cur_dir = env::current_dir()?;
     let output: PathBuf = Path::new(&cur_dir).join(matches.value_of("ouput").unwrap_or("output"));
-    fs::create_dir(&output)?;
+    if !output.is_dir()
+    {
+     fs::create_dir(&output)?;
+    }
+    
     println!("output path:{:?}",output.as_os_str());
 
     let file = File::open(input).unwrap();
@@ -55,7 +59,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         if s.is_ok() {
             let name = format!(r#"{}.html"#, &i);
             let path = output.clone().join(name);
-            println!("download path:{:?}",path.as_os_str());
+           
             tasks.push(download(s.unwrap(), path));
             i = i + 1;
         }
@@ -70,9 +74,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 }
 
 async fn download(url: String, name: PathBuf) -> Result<(), Box<dyn Error>> {
+     println!("download url:{:?}",&url);
+     println!("save path:{:?}",name.as_os_str());
     let resp = reqwest::get(&url).await?;
     let bytes = resp.bytes().await?;
-
     let mut out = tokio::fs::File::create(&name).await?;
     tokio::io::copy(&mut &*bytes, &mut out).await?;
     Ok(())

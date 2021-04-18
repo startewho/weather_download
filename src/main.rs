@@ -1,16 +1,16 @@
 use clap::{App, Arg};
-use futures::future::join_all;
+use futures::{future::join_all};
 use futures::prelude::*;
 use std::env;
+use std::{fs};
 use std::io::prelude::*;
-use std::fs;
 use std::io::{BufRead, BufReader};
 use std::{
     error::Error,
     fs::File,
     path::{Path, PathBuf},
-    string,
 };
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let matches = App::new("WeatherDownload")
@@ -55,7 +55,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         if s.is_ok() {
             let name = format!(r#"{}.html"#, &i);
             let path = output.clone().join(name);
-            println!("output path:{:?}",path.as_os_str());
+            println!("download path:{:?}",path.as_os_str());
             tasks.push(download(s.unwrap(), path));
             i = i + 1;
         }
